@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import home from '@/home'
+import home from '../home'
+import login from '../login'
 
 Vue.use(VueRouter);
 
@@ -37,8 +38,12 @@ const routes = [
         redirect: '/home'
     },
     {
+        path: '/login',
+        component: login
+    },
+    {
         path: '/home',
-        component:home,
+        component: home,
         children: configRouters
     }
 ];
@@ -53,7 +58,7 @@ router.beforeEach((to, from, next) => {
     next() // 确保一定要调用 next()
 });
 
-function validateFileName (str) {
+function validateFileName(str) {
     return /^\S+\.vue$/.test(str) && str.replace(/^\S+\/(\w+)\.vue$/, '$1')
 }
 

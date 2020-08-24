@@ -6,15 +6,16 @@ const helper = {
      * @param {String} dbName 数据库名称
      * @param {String} collection 集合（表）名
      * @param {Object} query 查询条件
+     * @param {Object} filter 过滤字段
      * @date 2020-08-12 16:02:01
      * @author Dulongfei
      *
      */
-    find(dbName, collection, query = {}) {
+    find(dbName, collection, query = {},filter={}) {
         return new Promise((resolve, reject) => {
             const resoursePro = texasPool.acquire();//在这里请求一个连接池的连接，它返回的是一个promise对象，如果不明白的给个链接：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise
             resoursePro.then((client) => {
-                let cursor = client.db(dbName).collection(collection).find(query);
+                let cursor = client.db(dbName).collection(collection).find(query).project(filter);
                 let somethign = cursor.toArray();
                 somethign.then((result) => {
                     resolve(result)

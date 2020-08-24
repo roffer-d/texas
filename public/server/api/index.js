@@ -25,6 +25,17 @@ app.post(`${baseUrl}/index`, (req, res) => {
     })
 })
 
+app.post(`${baseUrl}/userList`, (req, res) => {
+    let query = {}
+    let filter = {
+        password:0,
+        _id:0
+    }
+    helper.find('texas', 'users',query,filter).then(data => {
+        res.json(response.success(data))
+    })
+})
+
 app.post(`${baseUrl}/saveUser`, (req, res) => {
     let user = req.body.user
 
