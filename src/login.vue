@@ -8,7 +8,7 @@
             <div class="item">
                 <input type="password" v-model="form.password" />
             </div>
-            <div class="submit">登录</div>
+            <div class="submit" @click="login">登录</div>
         </div>
     </div>
 </template>
@@ -55,6 +55,15 @@
             async getUserList() {
                 let res = await this.http.post('/api/userList')
                 this.userList = res.data
+            },
+            async login(){
+                let params = {...this.form}
+                params.password = md5(params.password)
+
+                let res = await this.http.post('/api/login',params)
+                delete res.data.password
+                localStorage.setItem('user',JSON.stringify(res.data))
+                this.$router.push('/home')
             }
         }
     }

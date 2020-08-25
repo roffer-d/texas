@@ -73,11 +73,15 @@ app.post(`${baseUrl}/login`, (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
-    helper.find('texas', 'users', {username, password, status: 0}).then(data => {
+    helper.find('texas', 'users', {username, password}).then(data => {
         if (data && data.length) {
+            let user = data[0]
+            if(user.status != 0){
+                res.json(response.fail('账号已在其它地方登陆', 502))
+            }
             res.json(response.success(data[0]))
         } else {
-            res.json(response.fail('账号密码错误', 501))
+            res.json(response.fail('账号或密码错误', 501))
         }
     })
 });
