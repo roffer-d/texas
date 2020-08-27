@@ -8,6 +8,8 @@ import socket from './web-socket'
 import custom from '../components/custom'
 import filter from "./filter"
 
+import '../assets/font/iconfont.css'
+
 const config = {
     constant,
     utils,

@@ -1,0 +1,51 @@
+{
+  "id": "2030717",
+  "name": "texas",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "731261",
+      "name": "登录账号",
+      "font_class": "username",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "3702933",
+      "name": "请购统计",
+      "font_class": "chip",
+      "unicode": "e650",
+      "unicode_decimal": 58960
+    },
+    {
+      "icon_id": "5327434",
+      "name": "登录",
+      "font_class": "login",
+      "unicode": "e6f0",
+      "unicode_decimal": 59120
+    },
+    {
+      "icon_id": "7336777",
+      "name": "登录密码",
+      "font_class": "password",
+      "unicode": "e665",
+      "unicode_decimal": 58981
+    },
+    {
+      "icon_id": "8554292",
+      "name": "生产统计",
+      "font_class": "tongji",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "14421790",
+      "name": "退出",
+      "font_class": "logout",
+      "unicode": "e686",
+      "unicode_decimal": 59014
+    }
+  ]
+}

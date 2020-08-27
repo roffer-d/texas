@@ -3,10 +3,12 @@
         <div class="form">
             <img :src="heads[who]" class="head"/>
             <div class="item">
+                <span class="iconfont icon-username"></span>
                 <input type="text" @blur="usernameBlur" v-model="form.username"/>
             </div>
             <div class="item">
-                <input type="password" v-model="form.password" />
+                <span class="iconfont icon-password"></span>
+                <input type="password" v-model="form.password"/>
             </div>
             <div class="submit" @click="login">登录</div>
         </div>
@@ -28,7 +30,7 @@
         name: "login",
         data() {
             return {
-                heads: {roffer, lm, mxc, wyb, wyh, xj, zf,defaultImg},
+                heads: {roffer, lm, mxc, wyb, wyh, xj, zf, defaultImg},
                 who: 'defaultImg',
                 userList: [],
                 form: {
@@ -56,13 +58,13 @@
                 let res = await this.http.post('/api/userList')
                 this.userList = res.data
             },
-            async login(){
+            async login() {
                 let params = {...this.form}
                 params.password = md5(params.password)
 
-                let res = await this.http.post('/api/login',params)
+                let res = await this.http.post('/api/login', params)
                 delete res.data.password
-                localStorage.setItem('user',JSON.stringify(res.data))
+                localStorage.setItem('user', JSON.stringify(res.data))
                 this.$router.push('/home')
             }
         }
@@ -87,23 +89,51 @@
         animation: bgAnimate 3s infinite alternate;
         display: flex;
 
-        .form{
+        .form {
             width: 90%;
-            height: 30%;
+            height: 40%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             margin: auto;
-            background: rgba(0,0,0,.3);
+            background: rgba(0, 0, 0, .3);
 
-            .head{
+            .head {
                 width: 3rem;
                 height: 3rem;
                 border-radius: 50%;
+                margin-bottom: 1.5rem;
             }
-            .item{
 
+            .item {
+                margin-bottom: 1.5rem;
+                position: relative;
+
+                .iconfont{
+                    color: #c1b397;
+                    font-size: 1.4rem;
+                    position: absolute;
+                    top: .3rem;
+                    left:.2rem;
+                }
+
+                input {
+                    border: none;
+                    outline: none;
+                    border-radius: .2rem;
+                    height: 2rem;
+                    background: rgba(255, 255, 255, .7);
+                    color: #555;
+                    padding:.1rem .3rem .1rem 1.8rem;
+                }
+            }
+
+            .submit{
+                color: #fff;
+                border-radius: 0.2rem;
+                background: rgba(56,244,255,.6);
+                padding: .3rem 2rem;
             }
         }
     }
