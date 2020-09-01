@@ -36,6 +36,7 @@ function out(token) {
 socket.onMessage = (msg) => {
     let json = JSON.parse(msg)
     let {type, token} = json
+
     switch (type) {
         case 'join':
             getUserByToken(token)
@@ -44,7 +45,6 @@ socket.onMessage = (msg) => {
             out(token)
             break;
     }
-
 }
 
 app.use(bodyParser());
@@ -99,7 +99,7 @@ app.post(`${baseUrl}/login`, (req, res) => {
     helper.find('texas', 'users', {username, password}).then(data => {
         if (data && data.length) {
             let user = data[0]
-            if (user.status != 0) {
+            if (socket.connections[user._id]) {
                 res.json(response.fail('账号已在其它地方登陆', 502))
             }
             helper.update('texas', 'users', {username, password}, {$set: {last_login_time: new Date()}}).then(d => {
