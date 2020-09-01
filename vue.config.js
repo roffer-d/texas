@@ -1,3 +1,5 @@
+const constant = require('./public/server/utils/Constant')
+
 module.exports = {
     publicPath: "/",
     outputDir: "dist",
@@ -5,10 +7,10 @@ module.exports = {
     lintOnSave: false,
     productionSourceMap: false,
     devServer:{
-        port: 8888,
+        port: constant.CLIENT_PORT,
         proxy: {
             '/api': {
-                target: 'http://localhost:8090',
+                target: `http://localhost:${constant.SERVER_PORT}`,
                 ws: true,
                 changeOrigin: true,
             }

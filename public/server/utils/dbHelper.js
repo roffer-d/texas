@@ -22,10 +22,10 @@ const helper = {
                     texasPool.release(client).then(() => {//归还连接
                         console.log('release')
                     });
-                }).catch((err) => {
-                    texasPool.release(client).catch((err) => {
-                        console.log(err)
-                        reject(err)
+                }).catch(() => {
+                    texasPool.release(client).catch((e) => {
+                        console.log(e)
+                        reject(e)
                     })
                 })
             })
@@ -41,7 +41,7 @@ const helper = {
      *
      */
     save(dbName, collection, insertObj) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const resoursePro = texasPool.acquire();
             resoursePro.then((client) => {
                 let cursor = client.db(dbName).collection(collection);
@@ -69,19 +69,20 @@ const helper = {
      *
      */
     update(dbName, collection, where, update, many = false) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const resoursePro = texasPool.acquire();
             resoursePro.then((client) => {
                 let cursor = client.db(dbName).collection(collection);
 
                 let method = many ? 'updateMany' : 'updateOne'
-                console.log(method)
                 cursor[method](where, update, function (err, res) {
                     if (err) throw err;
                     console.log("文档更新成功");
                     resolve(res)
                     client.close();
                 });
+            }).catch(e=>{
+                console.log(e)
             })
         })
     },
@@ -96,7 +97,7 @@ const helper = {
      *
      */
     del(dbName, collection, where, many = false) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const resoursePro = texasPool.acquire();
             resoursePro.then((client) => {
                 let cursor = client.db(dbName).collection(collection);

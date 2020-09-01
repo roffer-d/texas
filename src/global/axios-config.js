@@ -19,11 +19,10 @@ axios.defaults.transformRequest = function (data) {
 axios.interceptors.request.use(
     config => {
 
-        // let user = localStorage.getItem("userInfo")
-        // if (user) {
-        //     let sessionId = JSON.parse(user).sessionId
-        //     config.headers['sessionId'] = sessionId
-        // }
+        let token = localStorage.getItem("token")
+        if (token) {
+            config.headers['token'] = token
+        }
 
         return config;
 

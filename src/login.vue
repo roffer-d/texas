@@ -63,8 +63,8 @@
                 params.password = md5(params.password)
 
                 let res = await this.http.post('/api/login', params)
-                delete res.data.password
-                localStorage.setItem('user', JSON.stringify(res.data))
+                localStorage.setItem('user', JSON.stringify(res.data.user))
+                localStorage.setItem('token', res.data.token)
                 this.$router.push('/home')
             }
         }

@@ -12,6 +12,7 @@
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
     "generic-pool": "^3.7.1",
+    "jsonwebtoken": "^8.5.1",
     "less": "^3.11.3",
     "less-loader": "^6.1.1",
     "md5-node": "^1.0.1",
