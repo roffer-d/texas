@@ -18,16 +18,12 @@
 
         },
         mounted() {
-            this.getUserList()
+            this.updateUserList()
         },
         methods: {
             ...mapActions({
                 updateUserList:'common/updateUserList'
-            }),
-            async getUserList() {
-                let res = await this.http.post('/api/userList')
-                this.updateUserList(res.data)
-            }
+            })
         }
     }
 </script>

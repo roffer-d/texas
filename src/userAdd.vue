@@ -1,7 +1,7 @@
 <template>
     <div class="user-add">
         <van-nav-bar
-                title="添加玩家"
+                :title="this.$route.query.userId ? `编辑玩家` : '添加玩家'"
                 left-text="返回"
                 left-arrow
                 @click-left="onClickLeft"
@@ -64,7 +64,11 @@
             }
         },
         mounted() {
-
+            if(this.$route.query.userId){
+                this.http.post('/api/findUser',{userId:this.$route.query.userId}).then(res=>{
+                    this.form = res.data
+                })
+            }
         },
         methods:{
             onClickLeft() {
@@ -76,10 +80,11 @@
                     return
                 }
 
+                let url = this.form._id ? '/api/updateUser' : '/api/saveUser'
                 let params = {...this.form}
                 params.password = md5(params.password)
 
-                this.http.post('/api/saveUser',{user:params}).then(res=>{
+                this.http.post(url,{user:params}).then(res=>{
                     this.form = {
                         username:'',
                         password:'',
@@ -87,7 +92,8 @@
                         status:0,
                         head:'',
                     }
-                    this.$toast('添加成功')
+                    this.$toast('保存成功')
+                    this.$router.push('/userList')
                 })
             },
             afterRead(file) {

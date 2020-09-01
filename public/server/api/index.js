@@ -113,6 +113,18 @@ app.post(`${baseUrl}/userInfo`, (req, res) => {
     }
 })
 
+app.post(`${baseUrl}/findUser`, (req, res) => {
+    let userId = req.body.userId
+    let query = {
+        _id:ObjectId(userId)
+    }
+
+    helper.find('texas', 'users', query).then(array => {
+        let data = array.length ? array[0] : {}
+        res.json(response.success(data))
+    })
+})
+
 app.post(`${baseUrl}/saveUser`, (req, res) => {
     let user = req.body.user
 
@@ -122,10 +134,12 @@ app.post(`${baseUrl}/saveUser`, (req, res) => {
 })
 
 app.post(`${baseUrl}/updateUser`, (req, res) => {
-    let username = req.body.username
+    let user = req.body.user
 
-    let where = {username}
-    let update = {$set:{username:'test111'}}
+    let where = {_id:ObjectId(user._id)}
+
+    delete user._id
+    let update = {$set:user}
 
     helper.update('texas', 'users', where,update,true).then(data => {
         console.log(data)
@@ -134,9 +148,9 @@ app.post(`${baseUrl}/updateUser`, (req, res) => {
 })
 
 app.post(`${baseUrl}/deleteUser`, (req, res) => {
-    let username = req.body.username
+    let userId = req.body.userId
 
-    let where = {username}
+    let where = {_id:ObjectId(userId)}
 
     helper.del('texas', 'users', where,true).then(data => {
         console.log(data)
@@ -147,8 +161,8 @@ app.post(`${baseUrl}/deleteUser`, (req, res) => {
 app.post(`${baseUrl}/userList`, (req, res) => {
     let query = {}
     let filter = {
-        password: 0,
-        _id: 0
+        // password: 1,
+        // _id: 1
     }
     helper.find('texas', 'users', query, filter).then(data => {
         res.json(response.success(data))

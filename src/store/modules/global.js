@@ -1,3 +1,5 @@
+import axios from '../../global/axios-config'
+
 const state = {
   userList:[]
 }
@@ -19,8 +21,9 @@ const getters = {
  * https://vuex.vuejs.org/zh/guide/actions.html
  */
 const actions = {
-  updateUserList(context,data){
-    context.commit('updateUserList',data);
+  async updateUserList(context){
+    let res = await axios.post('/api/userList')
+    context.commit('updateUserList',res.data);
   }
 }
 

@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 
 import home from '../home'
 import login from '../login'
+import userList from '../userList'
 import userAdd from '../userAdd'
 
 Vue.use(VueRouter);
@@ -45,6 +46,10 @@ const routes = [
     {
         path: '/userAdd',
         component: userAdd
+    },
+    {
+        path: '/userList',
+        component: userList
     },
     {
         path: '/home',
