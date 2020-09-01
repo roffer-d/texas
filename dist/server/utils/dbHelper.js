@@ -6,25 +6,26 @@ const helper = {
      * @param {String} dbName 数据库名称
      * @param {String} collection 集合（表）名
      * @param {Object} query 查询条件
+     * @param {Object} filter 过滤字段
      * @date 2020-08-12 16:02:01
      * @author Dulongfei
      *
      */
-    find(dbName, collection, query = {}) {
+    find(dbName, collection, query = {},filter={}) {
         return new Promise((resolve, reject) => {
             const resoursePro = texasPool.acquire();//在这里请求一个连接池的连接，它返回的是一个promise对象，如果不明白的给个链接：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise
             resoursePro.then((client) => {
-                let cursor = client.db(dbName).collection(collection).find(query);
+                let cursor = client.db(dbName).collection(collection).find(query).project(filter);
                 let somethign = cursor.toArray();
                 somethign.then((result) => {
                     resolve(result)
                     texasPool.release(client).then(() => {//归还连接
                         console.log('release')
                     });
-                }).catch((err) => {
-                    texasPool.release(client).catch((err) => {
-                        console.log(err)
-                        reject(err)
+                }).catch(() => {
+                    texasPool.release(client).catch((e) => {
+                        console.log(e)
+                        reject(e)
                     })
                 })
             })
@@ -40,7 +41,7 @@ const helper = {
      *
      */
     save(dbName, collection, insertObj) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const resoursePro = texasPool.acquire();
             resoursePro.then((client) => {
                 let cursor = client.db(dbName).collection(collection);
@@ -68,19 +69,20 @@ const helper = {
      *
      */
     update(dbName, collection, where, update, many = false) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const resoursePro = texasPool.acquire();
             resoursePro.then((client) => {
                 let cursor = client.db(dbName).collection(collection);
 
                 let method = many ? 'updateMany' : 'updateOne'
-                console.log(method)
                 cursor[method](where, update, function (err, res) {
                     if (err) throw err;
                     console.log("文档更新成功");
                     resolve(res)
                     client.close();
                 });
+            }).catch(e=>{
+                console.log(e)
             })
         })
     },
@@ -95,7 +97,7 @@ const helper = {
      *
      */
     del(dbName, collection, where, many = false) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const resoursePro = texasPool.acquire();
             resoursePro.then((client) => {
                 let cursor = client.db(dbName).collection(collection);

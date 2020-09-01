@@ -1,7 +1,7 @@
 <template>
     <div class="login" ref="login">
         <div class="form">
-            <img :src="heads[who]" class="head"/>
+            <img :src="head" class="head"/>
             <div class="item">
                 <span class="iconfont icon-username"></span>
                 <input type="text" @blur="usernameBlur" v-model="form.username"/>
@@ -18,29 +18,23 @@
 <script>
     import md5 from 'md5-node'
     import defaultImg from './assets/images/default.jpg'
-    import roffer from './assets/images/roffer.jpeg'
-    import lm from './assets/images/lm.jpeg'
-    import mxc from './assets/images/mxc.jpeg'
-    import wyb from './assets/images/wyb.jpeg'
-    import wyh from './assets/images/wyh.jpeg'
-    import xj from './assets/images/xj.jpeg'
-    import zf from './assets/images/zf.jpeg'
+    import {mapGetters} from 'vuex'
 
     export default {
         name: "login",
         data() {
             return {
-                heads: {roffer, lm, mxc, wyb, wyh, xj, zf, defaultImg},
-                who: 'defaultImg',
-                userList: [],
+                head:defaultImg,
                 form: {
                     username: '',
                     password: ''
                 }
             }
         },
-        created() {
-            this.getUserList()
+        computed:{
+            ...mapGetters({
+                userList:'common/userList'
+            })
         },
         mounted() {
 
@@ -50,13 +44,11 @@
                 if (this.form.username) {
                     let index = this.userList.findIndex(item => item.username === this.form.username)
                     if (index !== -1) {
-                        this.who = this.userList[index].username
+                        this.head = this.userList[index].head
+                    }else{
+                        this.head = defaultImg
                     }
                 }
-            },
-            async getUserList() {
-                let res = await this.http.post('/api/userList')
-                this.userList = res.data
             },
             async login() {
                 let params = {...this.form}

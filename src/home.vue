@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <router-view/>
+    <div class="main">
+
     </div>
 </template>
 
@@ -52,6 +52,12 @@
     }
 </script>
 
-<style scoped>
-
+<style scoped lang="less">
+    .main{
+        /*background: url("./assets/images/bg1.jpeg");*/
+        background: #3781b0;
+        background-size: 100% 100%;
+        height: 100vh;
+        width: 100%;
+    }
 </style>

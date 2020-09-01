@@ -1,5 +1,5 @@
 const state = {
-  data:[{id:1,name:'test'}]
+  userList:[]
 }
 
 /**
@@ -7,8 +7,8 @@ const state = {
  * https://vuex.vuejs.org/zh/guide/getters.html
  */
 const getters = {
-  data: state => {
-    return state.data
+  userList: state => {
+    return state.userList
   }
 }
 
@@ -19,8 +19,8 @@ const getters = {
  * https://vuex.vuejs.org/zh/guide/actions.html
  */
 const actions = {
-  updateData(context,data){
-    context.commit('updateData',data);
+  updateUserList(context,data){
+    context.commit('updateUserList',data);
   }
 }
 
@@ -31,8 +31,8 @@ const actions = {
  * https://vuex.vuejs.org/zh/guide/mutations.html
  */
 const mutations = {
-  updateData(state,data){
-    state.data = data
+  updateUserList(state,data){
+    state.userList = data
   }
 }
 
