@@ -27,28 +27,37 @@ const upload = multer({ storage: storage });
 
 app.use(express.static('/images'));
 
-function getUserByToken(token) {
+function join(token) {
     jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
-        let query = {
-            _id: ObjectId(r.userId)
-        }
 
-        helper.find('texas', 'users', query).then(array => {
-            let user = array.length ? array[0] : {}
-            socket.sendMsg({type: 'join', user})
-        })
+        let onlineUsers = Object.keys(socket.connections)
+        socket.sendMsg({type: 'join', userId:r.userId,onlineUsers})
+
+        // let query = {
+        //     _id: ObjectId(r.userId)
+        // }
+        //
+        // helper.find('texas', 'users', query).then(array => {
+        //     let user = array.length ? array[0] : {}
+        //     let onlineUsers = Object.keys(socket.connections)
+        //     socket.sendMsg({type: 'join', user,onlineUsers})
+        // })
     })
 }
 
 function out(token) {
     jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
-        let query = {
-            _id: ObjectId(r.userId)
-        }
-        helper.find('texas', 'users', query).then(array => {
-            let user = array.length ? array[0] : {}
-            socket.sendMsg({type: 'out', user})
-        })
+
+        let onlineUsers = Object.keys(socket.connections)
+        socket.sendMsg({type: 'join', userId:r.userId,onlineUsers})
+
+        // let query = {
+        //     _id: ObjectId(r.userId)
+        // }
+        // helper.find('texas', 'users', query).then(array => {
+        //     let user = array.length ? array[0] : {}
+        //     socket.sendMsg({type: 'out', user,onlineUsers:socket.connections})
+        // })
     })
 }
 
@@ -56,14 +65,18 @@ socket.onMessage = (msg) => {
     let json = JSON.parse(msg)
     let {type, token} = json
 
-    switch (type) {
-        case 'join':
-            getUserByToken(token)
-            break;
-        case 'out':
-            out(token)
-            break;
-    }
+    // switch (type) {
+    //     case 'join':
+    //         join(token)
+    //         break;
+    //     case 'out':
+    //         out(token)
+    //         break;
+    // }
+}
+
+socket.connected = (prarms) => {
+    join(prarms.token)
 }
 
 socket.close = (token) => {
@@ -81,7 +94,18 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.header("Access-Control-Allow-Headers", "Content-Type");
-    next();
+
+    if(req.headers.referer.indexOf('/login') !== -1){
+        next()
+    }else{
+        let token = req.headers.token
+        jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
+            if(err){
+                res.json(response.fail('登录已失效！', 401))
+            }
+            next();
+        })
+    }
 });
 
 // 文件上传请求处理，upload.array 支持多文件上传，第二个参数是上传文件数目
@@ -98,23 +122,19 @@ app.post(`${baseUrl}/upload`, upload.array('file', 1), function (req, res) {
 
 app.post(`${baseUrl}/userInfo`, (req, res) => {
     let token = req.headers.token
-    if (token) {
-        jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
-            if (err) {
-                res.json(response.fail('登录已失效！', 401))
-            } else {
-                let query = {
-                    _id: r.userId
-                }
-                helper.find('texas', 'users', query).then(array => {
-                    let data = array.length ? array[0] : {}
-                    res.json(response.success(data))
-                })
+    jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
+        if (err) {
+            res.json(response.fail('登录已失效！', 401))
+        } else {
+            let query = {
+                _id: r.userId
             }
-        })
-    } else {
-        res.json(response.fail('未登录！', 401))
-    }
+            helper.find('texas', 'users', query).then(array => {
+                let data = array.length ? array[0] : {}
+                res.json(response.success(data))
+            })
+        }
+    })
 })
 
 app.post(`${baseUrl}/findUser`, (req, res) => {

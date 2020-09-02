@@ -24,6 +24,7 @@ const actions = {
   async updateUserList(context){
     let res = await axios.post('/api/userList')
     context.commit('updateUserList',res.data);
+    return res;
   }
 }
 

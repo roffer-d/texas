@@ -46,7 +46,7 @@ axios.interceptors.response.use(
 
             if(data.code == constant.ERRORS.NOT_LOGIN){
                 //未登录,跳转到登录页
-                location.href = '/login'
+                window.location.pathname !== '/login' && (location.href = '/login')
             }
 
             const error = new Error(message)

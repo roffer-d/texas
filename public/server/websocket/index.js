@@ -17,6 +17,9 @@ let socket = {
     onMessage(msg){
         console.log('收到客户端推送消息：',msg);
     },
+    connected(prarms){
+
+    },
     close(token){
 
     }
@@ -38,6 +41,8 @@ wss.on('connection', function (ws,req) {
         delete socket.connections[uid]
         socket.close(token)
     });
+
+    socket.connected(prarms)
 });
 
 console.log(`websocket server started.\n\tport:${constant.SOCKET_PORT}`)

@@ -1,60 +1,86 @@
 <template>
     <div class="main">
-
+        <div v-for="item in onlineUsers" :key="item._id">{{item.username}}</div>
     </div>
 </template>
 
 <script>
     import socket from "./global/socket";
     import constant from "../public/server/utils/Constant";
+    import {mapGetters,mapActions} from 'vuex'
 
     export default {
         name: "index",
         data() {
             return {
-                user:null,
+                user: null,
+                onlineUsers:[]
             }
+        },
+        computed:{
+            ...mapGetters({
+                userList:'common/userList'
+            })
         },
         created() {
             let token = localStorage.getItem('token')
 
             if (!token) {
                 this.$router.push('/login')
-            }else{
+            } else {
                 let user = localStorage.getItem('user')
                 user = JSON.parse(user)
 
                 this.websocket = new socket(`${constant.SOCKET_HOST}:${constant.SOCKET_PORT}/texas?uid=${user._id}&token=${token}`)
                 this.websocket.addCallback('join', this.join)
                 this.websocket.addCallback('out', this.out)
-
-                this.websocket.send({type: 'join', token})
             }
         },
         mounted() {
-            window.addEventListener('beforeunload', this.closeWindow)
             this.getData()
         },
         methods: {
-            closeWindow(){
-                // let token = localStorage.getItem('token')
-                // this.websocket.send({type: 'out', token})
-            },
+            ...mapActions({
+                updateUserList:'common/updateUserList'
+            }),
             async getData() {
-                this.user = await this.http.post('/api/userInfo')
+                // this.user = await this.http.post('/api/userInfo')
+                this.user = JSON.parse(localStorage.getItem('user'))
             },
-            join(data) {
-                console.log(`用户【${data.user.username}】加入了战斗`)
+            async join(data) {
+                let list = this.userList
+
+                if(!list.length){
+                    let res = await this.updateUserList()
+                    list = res.data
+                }
+
+                let user = this.userList.find(u=>{return u._id === data.userId})
+                console.log(`玩家【${user.username}】加入`)
+
+                let onlineUserIds = data.onlineUsers.join(',')
+                this.onlineUsers = list.filter(item=>onlineUserIds.indexOf(item._id) !== -1)
             },
-            out(data) {
-                console.log(`用户【${data.user.username}】退出了战斗`)
+            async out(data) {
+                let list = this.userList
+
+                if(!list.length){
+                    let res = await this.updateUserList()
+                    list = res.data
+                }
+
+                let user = this.userList.find(u=>{return u._id === data.userId})
+                console.log(`玩家【${user.username}】退出`)
+
+                let onlineUserIds = data.onlineUsers.join(',')
+                this.onlineUsers = list.filter(item=>onlineUserIds.indexOf(item._id) !== -1)
             }
         }
     }
 </script>
 
 <style scoped lang="less">
-    .main{
+    .main {
         /*background: url("./assets/images/bg1.jpeg");*/
         background: #3781b0;
         background-size: 100% 100%;
