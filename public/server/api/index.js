@@ -51,7 +51,24 @@ app.use(function (req, res, next) {
 });
 
 function ready(userId){
-    socket.sendMsg({type: 'ready', userId:userId})
+    socket.connections[userId].ready = true;
+
+    let count = Object.keys(socket.connections).length
+    let readyCount = 0
+    let pokerList = []
+
+    for(let key in socket.connections){
+        if(socket.connections[key].ready){
+            readyCount = readyCount +1
+        }
+    }
+
+    //所有玩家都准备就绪，生成初始3张底牌
+    if(count === readyCount){
+        pokerList = constant.genPokers(3)
+    }
+
+    socket.sendMsg({type: 'ready', userId:userId,pokerList})
 }
 
 socket.onMessage = (msg) => {
