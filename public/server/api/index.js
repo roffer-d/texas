@@ -66,6 +66,10 @@ socket.onMessage = (msg) => {
     }
 }
 
+socket.close = (token) => {
+    out(token)
+}
+
 // app.use(bodyParser());
 
 app.use(bodyParser.json({limit: '10mb'})); // for parsing application/json

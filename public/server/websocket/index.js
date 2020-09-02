@@ -17,6 +17,9 @@ let socket = {
     onMessage(msg){
         console.log('收到客户端推送消息：',msg);
     },
+    close(token){
+
+    }
 }
 
 wss.on('connection', function (ws,req) {
@@ -25,12 +28,15 @@ wss.on('connection', function (ws,req) {
     let url = req.url;
     let prarms = qs.parse(url.split('?')[1]); // uid=xxxxxx
     prarms = JSON.parse(JSON.stringify(prarms))
+    let uid = prarms.uid
+    let token = prarms.token
 
-    socket.connections[prarms.uid] = ws
+    socket.connections[uid] = ws
 
     ws.on('message', socket.onMessage);
     ws.on('close', ()=>{
-        delete socket.connections[prarms.token]
+        delete socket.connections[uid]
+        socket.close(token)
     });
 });
 

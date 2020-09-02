@@ -23,7 +23,7 @@
                 let user = localStorage.getItem('user')
                 user = JSON.parse(user)
 
-                this.websocket = new socket(`125.64.98.29:8181/texas?uid=${user._id}`)
+                this.websocket = new socket(`125.64.98.29:8181/texas?uid=${user._id}&token=${token}`)
                 this.websocket.addCallback('join', this.join)
                 this.websocket.addCallback('out', this.out)
 
@@ -31,14 +31,14 @@
             }
         },
         mounted() {
-            window.addEventListener('beforeunload', () => {
-                let token = localStorage.getItem('token')
-                this.websocket.send({type: 'out', token})
-            })
-
+            window.addEventListener('beforeunload', this.closeWindow)
             this.getData()
         },
         methods: {
+            closeWindow(){
+                // let token = localStorage.getItem('token')
+                // this.websocket.send({type: 'out', token})
+            },
             async getData() {
                 this.user = await this.http.post('/api/userInfo')
             },
