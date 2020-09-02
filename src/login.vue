@@ -10,7 +10,7 @@
                 <span class="iconfont icon-password"></span>
                 <input type="password" v-model="form.password"/>
             </div>
-            <div class="submit" @click="login">登录</div>
+            <div class="submit" @click="login">登录 <i class="iconfont icon-login"></i></div>
         </div>
     </div>
 </template>

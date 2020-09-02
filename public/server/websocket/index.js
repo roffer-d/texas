@@ -20,7 +20,7 @@ let socket = {
     connected(prarms){
 
     },
-    close(token){
+    close(prarms){
 
     }
 }
@@ -31,18 +31,17 @@ wss.on('connection', function (ws,req) {
     let url = req.url;
     let prarms = qs.parse(url.split('?')[1]); // uid=xxxxxx
     prarms = JSON.parse(JSON.stringify(prarms))
-    let uid = prarms.uid
-    let token = prarms.token
+    let uid = prarms._id
 
     socket.connections[uid] = ws
 
     ws.on('message', socket.onMessage);
     ws.on('close', ()=>{
         delete socket.connections[uid]
-        socket.close(token)
+        socket.close(uid)
     });
 
-    socket.connected(prarms)
+    socket.connected(uid)
 });
 
 console.log(`websocket server started.\n\tport:${constant.SOCKET_PORT}`)

@@ -21,67 +21,9 @@ const storage = multer.diskStorage({
         cb(null, `${Date.now()}-${file.originalname}`)
     }
 })
-
 // 添加配置文件到muler对象。
 const upload = multer({ storage: storage });
-
 app.use(express.static('/images'));
-
-function join(token) {
-    jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
-
-        let onlineUsers = Object.keys(socket.connections)
-        socket.sendMsg({type: 'join', userId:r.userId,onlineUsers})
-
-        // let query = {
-        //     _id: ObjectId(r.userId)
-        // }
-        //
-        // helper.find('texas', 'users', query).then(array => {
-        //     let user = array.length ? array[0] : {}
-        //     let onlineUsers = Object.keys(socket.connections)
-        //     socket.sendMsg({type: 'join', user,onlineUsers})
-        // })
-    })
-}
-
-function out(token) {
-    jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
-
-        let onlineUsers = Object.keys(socket.connections)
-        socket.sendMsg({type: 'join', userId:r.userId,onlineUsers})
-
-        // let query = {
-        //     _id: ObjectId(r.userId)
-        // }
-        // helper.find('texas', 'users', query).then(array => {
-        //     let user = array.length ? array[0] : {}
-        //     socket.sendMsg({type: 'out', user,onlineUsers:socket.connections})
-        // })
-    })
-}
-
-socket.onMessage = (msg) => {
-    let json = JSON.parse(msg)
-    let {type, token} = json
-
-    // switch (type) {
-    //     case 'join':
-    //         join(token)
-    //         break;
-    //     case 'out':
-    //         out(token)
-    //         break;
-    // }
-}
-
-socket.connected = (prarms) => {
-    join(prarms.token)
-}
-
-socket.close = (token) => {
-    out(token)
-}
 
 // app.use(bodyParser());
 
@@ -107,6 +49,31 @@ app.use(function (req, res, next) {
         })
     }
 });
+
+function ready(userId){
+    socket.sendMsg({type: 'ready', userId:userId})
+}
+
+socket.onMessage = (msg) => {
+    let json = JSON.parse(msg)
+    let {type, userId} = json
+
+    switch (type) {
+        case 'ready':
+            ready(userId)
+            break;
+    }
+}
+
+socket.connected = (_id) => {
+    let onlineUsers = Object.keys(socket.connections)
+    socket.sendMsg({type: 'join', userId:_id,onlineUsers})
+}
+
+socket.close = (_id) => {
+    let onlineUsers = Object.keys(socket.connections)
+    socket.sendMsg({type: 'join', userId:_id,onlineUsers})
+}
 
 // 文件上传请求处理，upload.array 支持多文件上传，第二个参数是上传文件数目
 app.post(`${baseUrl}/upload`, upload.array('file', 1), function (req, res) {
