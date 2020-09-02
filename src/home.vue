@@ -30,7 +30,8 @@
         </div>
         <div class="current">
             <div class="handle" v-if="user.ready && !isStart"><i class="iconfont icon-jushou"></i></div>
-            <div class="ready" v-else-if="!user.ready && !isStart" @click="doReady">准备</div>
+            <div class="ready" @click="doReady" v-if="!user.ready && !isStart">准备</div>
+            <div v-if="user.ready && isStart" class="null"></div>
             <img class="head" :src="user.head" />
         </div>
     </div>
@@ -252,11 +253,16 @@
         }
 
         .current{
-            /*position: absolute;*/
-            /*bottom: 1rem;*/
-            /*width: 100%;*/
             text-align: center;
             height: 7.5rem;
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+            justify-content: inherit;
+
+            .null{
+                height: 2rem;
+            }
 
             .ready{
                 color:#fff;
