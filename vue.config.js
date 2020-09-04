@@ -1,4 +1,4 @@
-const constant = require('./public/server/utils/Constant')
+const constant = require('./public/server/utils/constant')
 
 module.exports = {
     publicPath: "/",

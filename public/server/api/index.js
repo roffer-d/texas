@@ -5,7 +5,9 @@ const bodyParser = require("body-parser");
 const helper = require("../utils/dbHelper")
 const response = require("../utils/response")
 const jwt = require('jsonwebtoken');
-const constant = require('../utils/Constant')
+const constant = require('../utils/constant')
+const status = require('../utils/status')
+const game = require('../utils/game')
 const socket = require("../websocket")
 const baseUrl = constant.BASE_API
 const multer = require("multer");
@@ -42,12 +44,21 @@ app.use(function (req, res, next) {
     }else{
         let token = req.headers.token
         jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
+            let a = jwt.sign({userId: r.userId}, constant.TOKEN_PRIVATE_KEY, {expiresIn: constant.TOKEN_EXPIRESIN})
+            let b = jwt.sign({userId: r.userId}, constant.TOKEN_PRIVATE_KEY, {expiresIn: constant.TOKEN_EXPIRESIN})
+            console.log(a == b)
             if(err){
-                res.json(response.fail('登录已失效！', 401))
+                res.json(response.fail(status.ERRORS.NOT_LOGIN.message, status.ERRORS.NOT_LOGIN.code))
             }
+            //已再其它端登录
+            // else if (socket.connections[r.userId] && token !== socket.connections[r.userId].token) {
+            //     res.json(response.fail(status.ERRORS.OTHER_LOGIN.message, status.ERRORS.OTHER_LOGIN.code))
+            // }
             next();
         })
     }
+}).unless({
+    path: [/^\/login/]
 });
 
 function ready(userId){
@@ -63,9 +74,9 @@ function ready(userId){
         }
     }
 
-    //所有玩家都准备就绪，生成初始3张底牌
-    if(count === readyCount){
-        pokerList = constant.genPokers(3)
+    //所有玩家都准备就绪(至少2个人)，生成初始3张底牌
+    if(count >= 2 && count === readyCount){
+        pokerList = game.genPokers(3)
     }
 
     socket.sendMsg({type: 'ready', userId:userId,pokerList})
@@ -98,7 +109,7 @@ app.post(`${baseUrl}/upload`, upload.array('file', 1), function (req, res) {
     let files = req.files;
 
     if(!files[0]) {
-        res.json(response.fail('上传失败',500))
+        res.json(response.fail(status.ERRORS.UPLOAD_FAIL.message, status.ERRORS.UPLOAD_FAIL.code))
     } else {
         res.json(response.success({url: `http://file.lonhey.com/${files[0].path.replace(/\\/g,'/')}`}))
     }
@@ -108,7 +119,7 @@ app.post(`${baseUrl}/userInfo`, (req, res) => {
     let token = req.headers.token
     jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
         if (err) {
-            res.json(response.fail('登录已失效！', 401))
+            res.json(response.fail(status.ERRORS.NOT_LOGIN.message, status.ERRORS.NOT_LOGIN.code))
         } else {
             let query = {
                 _id: r.userId
@@ -150,7 +161,6 @@ app.post(`${baseUrl}/updateUser`, (req, res) => {
     let update = {$set:user}
 
     helper.update('texas', 'users', where,update,true).then(data => {
-        console.log(data)
         res.json(response.success(data))
     })
 })
@@ -161,7 +171,6 @@ app.post(`${baseUrl}/deleteUser`, (req, res) => {
     let where = {_id:ObjectId(userId)}
 
     helper.del('texas', 'users', where,true).then(data => {
-        console.log(data)
         res.json(response.success(data))
     })
 })
@@ -186,7 +195,7 @@ app.post(`${baseUrl}/login`, (req, res) => {
         if (data && data.length) {
             let user = data[0]
             if (socket.connections[user._id]) {
-                res.json(response.fail('账号已在其它地方登陆', 502))
+                res.json(response.fail(status.ERRORS.OTHER_LOGIN.message, status.ERRORS.OTHER_LOGIN.code))
             }
             helper.update('texas', 'users', {username, password}, {$set: {last_login_time: new Date()}}).then(d => {
                 let token = jwt.sign({userId: user._id}, constant.TOKEN_PRIVATE_KEY, {expiresIn: constant.TOKEN_EXPIRESIN})

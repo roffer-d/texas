@@ -1,11 +1,4 @@
-const Constant = {
-    BASE_API:'/api',
-    TOKEN_PRIVATE_KEY:'TEXAS',
-    TOKEN_EXPIRESIN:'1d',
-    SOCKET_HOST:'125.64.98.29',
-    SOCKET_PORT:8181,
-    SERVER_PORT:8881,
-    CLIENT_PORT:8880,
+const game = {
     basePokerList:[
         {label:'A',value:1,color:1},{label:'A',value:1,color:2},{label:'A',value:1,color:3},{label:'A',value:1,color:4},
         {label:'K',value:13,color:1},{label:'K',value:12,color:2},{label:'K',value:13,color:3},{label:'K',value:13,color:4},
@@ -35,4 +28,5 @@ const Constant = {
         return ret
     }
 }
-module.exports = Constant
+
+module.exports = game

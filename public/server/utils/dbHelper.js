@@ -1,4 +1,4 @@
-const texasPool = require('./MongoPool');
+const texasPool = require('./mongoPool');
 
 const helper = {
     /**

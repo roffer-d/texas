@@ -43,7 +43,7 @@
 
 <script>
     import socket from "./global/socket";
-    import constant from "../public/server/utils/Constant";
+    import constant from "../public/server/utils/constant";
     import {mapGetters,mapActions} from 'vuex'
 
     export default {

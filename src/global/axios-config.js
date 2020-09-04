@@ -2,12 +2,12 @@
  * ajax请求配置
  */
 import axios from 'axios'
-import constant from './constant'
+import status from '../../public/server/utils/status'
 import qs from 'qs'
 import {Toast} from 'vant'
 
 // axios默认配置
-axios.defaults.timeout = constant.TIMEOUT;          // 超时时间
+axios.defaults.timeout = status.TIMEOUT;          // 超时时间
 axios.defaults.baseURL = '/';  // 默认地址
 //**整理数据格式**
 axios.defaults.transformRequest = function (data) {
@@ -39,14 +39,22 @@ axios.interceptors.response.use(
 
         let data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data
         response.data = data
-        if (data.code != constant.SUCCESS) {
-            let message = response.data.msg
 
+        let {code} = data;
+
+        if(code != status.SUCCESS){
+            let message = data.msg
             Toast(message)
 
-            if(data.code == constant.ERRORS.NOT_LOGIN){
-                //未登录,跳转到登录页
-                window.location.pathname !== '/login' && (location.href = '/login')
+            switch (code) {
+                case status.ERRORS.NOT_LOGIN.code:
+                    window.location.pathname !== '/login' && (location.href = '/login')
+                    break;
+                case status.ERRORS.OTHER_LOGIN.code:
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('user')
+                    window.location.pathname !== '/login' && (location.href = '/login')
+                    break;
             }
 
             const error = new Error(message)
@@ -55,7 +63,7 @@ axios.interceptors.response.use(
             throw error
         }
 
-        return response.data;
+        return data
     },
     error => {
         if(error.response && error.response.data){
@@ -64,7 +72,7 @@ axios.interceptors.response.use(
             if(data.indexOf('code=401') !== -1){//登录超时
                 location.href = '/login'
             }
-        }else if(error.message === `timeout of ${constant.TIMEOUT}ms exceeded`){
+        }else if(error.message === `timeout of ${status.TIMEOUT}ms exceeded`){
             Toast("请求超时！")
         }
         return Promise.reject(error)   // 返回接口返回的错误信息

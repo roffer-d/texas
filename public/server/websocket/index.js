@@ -1,5 +1,5 @@
 const qs = require('qs');
-const constant = require('../utils/Constant')
+const constant = require('../utils/constant')
 const WebSocketServer = require('ws').Server,
     wss = new WebSocketServer({port: constant.SOCKET_PORT});//服务端口8181
 
@@ -8,8 +8,8 @@ let socket = {
     sendMsg(data){
         for(let key in this.connections){
             let item = this.connections[key]
-            if (item.readyState == 1) {
-                item.send(JSON.stringify(data)); //需要将对象转成字符串。WebSocket只支持文本和二进制数据,推送消息
+            if (item.ws.readyState == 1) {
+                item.ws.send(JSON.stringify(data)); //需要将对象转成字符串。WebSocket只支持文本和二进制数据,推送消息
                 console.log('已发送socket信息：',JSON.stringify(data))
             }
         }
@@ -31,17 +31,17 @@ wss.on('connection', function (ws,req) {
     let url = req.url;
     let prarms = qs.parse(url.split('?')[1]); // uid=xxxxxx
     prarms = JSON.parse(JSON.stringify(prarms))
-    let uid = prarms._id
+    let {_id,token} = prarms
 
-    socket.connections[uid] = ws
+    socket.connections[_id] = {token,ws}
 
     ws.on('message', socket.onMessage);
     ws.on('close', ()=>{
-        delete socket.connections[uid]
-        socket.close(uid)
+        delete socket.connections[_id]
+        socket.close(_id)
     });
 
-    socket.connected(uid)
+    socket.connected(_id)
 });
 
 console.log(`websocket server started.\n\tport:${constant.SOCKET_PORT}`)
