@@ -11,7 +11,7 @@ const game = require('../utils/game')
 const socket = require("../websocket")
 const baseUrl = constant.BASE_API
 const multer = require("multer");
-const fs = require('fs');
+// const fs = require('fs');
 const ObjectId = require('mongodb').ObjectId
 
 // 设置图片存储路径
@@ -44,9 +44,6 @@ app.use(function (req, res, next) {
     }else{
         let token = req.headers.token
         jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
-            let a = jwt.sign({userId: r.userId}, constant.TOKEN_PRIVATE_KEY, {expiresIn: constant.TOKEN_EXPIRESIN})
-            let b = jwt.sign({userId: r.userId}, constant.TOKEN_PRIVATE_KEY, {expiresIn: constant.TOKEN_EXPIRESIN})
-            console.log(a == b)
             if(err){
                 res.json(response.fail(status.ERRORS.NOT_LOGIN.message, status.ERRORS.NOT_LOGIN.code))
             }
@@ -57,9 +54,7 @@ app.use(function (req, res, next) {
             next();
         })
     }
-}).unless({
-    path: [/^\/login/]
-});
+})
 
 function ready(userId){
     socket.connections[userId].ready = true;
@@ -76,7 +71,8 @@ function ready(userId){
 
     //所有玩家都准备就绪(至少2个人)，生成初始3张底牌
     if(count >= 2 && count === readyCount){
-        pokerList = game.genPokers(3)
+        game.start()
+        pokerList = game.pokerList
     }
 
     socket.sendMsg({type: 'ready', userId:userId,pokerList})
@@ -96,11 +92,24 @@ socket.onMessage = (msg) => {
 socket.connected = (_id) => {
     let onlineUsers = Object.keys(socket.connections)
     socket.sendMsg({type: 'join', userId:_id,onlineUsers})
+
+    let conn = socket.connections[_id]
+    if(conn.status === status.GAME.IN_PROGRESS){
+        socket.sendMsg({type: 'reconnect', userId:_id,pokerList:game.pokerList})
+    }
 }
 
 socket.close = (_id) => {
+    if(!game.isStart){
+        //对局未开始离开，直接删除连接状态
+        delete socket.connections[_id]
+    }else{
+        //对局进行中离开，标记当前玩家离线
+        socket.connections[_id].status = status.GAME.LEAVE
+    }
+
     let onlineUsers = Object.keys(socket.connections)
-    socket.sendMsg({type: 'join', userId:_id,onlineUsers})
+    socket.sendMsg({type: 'out', userId:_id,onlineUsers})
 }
 
 // 文件上传请求处理，upload.array 支持多文件上传，第二个参数是上传文件数目

@@ -75,6 +75,7 @@
                 this.websocket.addCallback('join', this.join)
                 this.websocket.addCallback('out', this.out)
                 this.websocket.addCallback('ready', this.ready)
+                this.websocket.addCallback('reconnect', this.reconnect)
             }
         },
         mounted() {
@@ -133,6 +134,18 @@
                 this.$set(user,'ready',true)
 
                 //所有玩家准备就绪,开始对局
+                if(data.pokerList.length){
+                    this.start(data.pokerList)
+                }
+            },
+            //离线重连接
+            reconnect(data){
+                let user = this.onlineUsers.find(u=>{return u._id === data.userId})
+                console.log(`玩家【${user.username}】回来了`)
+
+                this.$set(user,'ready',true)
+
+                //获取当前对局数据
                 if(data.pokerList.length){
                     this.start(data.pokerList)
                 }
@@ -266,6 +279,7 @@
                         &.item-bottom{
                             right:.1rem;
                             bottom: .1rem;
+                            transform: rotate(180deg);
                         }
                     }
                 }

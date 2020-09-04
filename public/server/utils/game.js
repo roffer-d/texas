@@ -1,4 +1,6 @@
 const game = {
+    isStart:false,//是否已经开始对局
+    pokerList:[],//已发的底牌
     basePokerList:[
         {label:'A',value:1,color:1},{label:'A',value:1,color:2},{label:'A',value:1,color:3},{label:'A',value:1,color:4},
         {label:'K',value:13,color:1},{label:'K',value:12,color:2},{label:'K',value:13,color:3},{label:'K',value:13,color:4},
@@ -25,7 +27,19 @@ const game = {
             }
         }
 
+        this.pokerList = this.pokerList.concat(ret)
+
         return ret
+    },
+    //开始对局
+    start(){
+        this.genPokers(2)
+        this.isStart = true
+    },
+    //结束对局
+    over(){
+        this.isStart = false
+        this.pokerList = []
     }
 }
 
