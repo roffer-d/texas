@@ -7,8 +7,7 @@ const response = require("../utils/response")
 const jwt = require('jsonwebtoken');
 const constant = require('../utils/constant')
 const status = require('../utils/status')
-const game = require('../utils/game')
-const socket = require("../websocket")
+const socket = require('./socket')
 const baseUrl = constant.BASE_API
 const multer = require("multer");
 // const fs = require('fs');
@@ -43,7 +42,7 @@ app.use(function (req, res, next) {
         next()
     }else{
         let token = req.headers.token
-        jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err, r) => {
+        jwt.verify(token, constant.TOKEN_PRIVATE_KEY, (err) => {
             if(err){
                 res.json(response.fail(status.ERRORS.NOT_LOGIN.message, status.ERRORS.NOT_LOGIN.code))
             }
@@ -55,64 +54,6 @@ app.use(function (req, res, next) {
         })
     }
 })
-
-function ready(userId){
-    socket.connections[userId].ready = true;
-
-    let count = Object.keys(socket.connections).length
-    let readyCount = 0
-    let pokerList = []
-
-    for(let key in socket.connections){
-        if(socket.connections[key].ready){
-            readyCount = readyCount +1
-        }
-    }
-
-    //所有玩家都准备就绪(至少2个人)，生成初始3张底牌
-    if(count >= 2 && count === readyCount){
-        game.start()
-        pokerList = game.pokerList
-    }
-
-    socket.sendMsg({type: 'ready', userId:userId,pokerList})
-}
-
-socket.onMessage = (msg) => {
-    let json = JSON.parse(msg)
-    let {type, userId} = json
-
-    switch (type) {
-        case 'ready':
-            ready(userId)
-            break;
-    }
-}
-
-socket.connected = (_id) => {
-    let onlineUsers = Object.keys(socket.connections)
-    let conn = socket.connections[_id]
-
-    if(conn.status === status.GAME.LEAVE){
-        socket.sendMsg({type: 'reconnect', userId:_id,pokerList:game.pokerList,onlineUsers})
-        conn.status = status.GAME.IN_PROGRESS
-    }else{
-        socket.sendMsg({type: 'join', userId:_id,onlineUsers})
-    }
-}
-
-socket.close = (_id) => {
-    if(!game.isStart){
-        //对局未开始离开，直接删除连接状态
-        delete socket.connections[_id]
-    }else{
-        //对局进行中离开，标记当前玩家离线
-        socket.connections[_id].status = status.GAME.LEAVE
-    }
-
-    let onlineUsers = Object.keys(socket.connections)
-    socket.sendMsg({type: 'out', userId:_id,onlineUsers})
-}
 
 // 文件上传请求处理，upload.array 支持多文件上传，第二个参数是上传文件数目
 app.post(`${baseUrl}/upload`, upload.array('file', 1), function (req, res) {
@@ -158,7 +99,7 @@ app.post(`${baseUrl}/findUser`, (req, res) => {
 app.post(`${baseUrl}/saveUser`, (req, res) => {
     let user = req.body.user
 
-    helper.save('texas', 'users', user).then(data => {
+    helper.save('texas', 'users', user).then(() => {
         res.json(response.success())
     })
 })
@@ -208,7 +149,7 @@ app.post(`${baseUrl}/login`, (req, res) => {
             if (socket.connections[user._id]) {
                 res.json(response.fail(status.ERRORS.OTHER_LOGIN.message, status.ERRORS.OTHER_LOGIN.code))
             }
-            helper.update('texas', 'users', {username, password}, {$set: {last_login_time: new Date()}}).then(d => {
+            helper.update('texas', 'users', {username, password}, {$set: {last_login_time: new Date()}}).then(() => {
                 let token = jwt.sign({userId: user._id}, constant.TOKEN_PRIVATE_KEY, {expiresIn: constant.TOKEN_EXPIRESIN})
                 let resData = {user, token}
 

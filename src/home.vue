@@ -134,8 +134,8 @@
                 this.$set(user,'ready',true)
 
                 //所有玩家准备就绪,开始对局
-                if(data.pokerList.length){
-                    this.start(data.pokerList)
+                if(data.gameInfo.isStart){
+                    this.start(data.gameInfo.pokerList)
                 }
             },
             //离线重连接
