@@ -1,5 +1,6 @@
 const game = {
     isStart:false,//是否已经开始对局
+    dinerForUserIndex: -1,
     pokerList:[],//已发的底牌
     basePokerList:[
         {label:'A',value:1,color:1},{label:'A',value:1,color:2},{label:'A',value:1,color:3},{label:'A',value:1,color:4},
@@ -36,11 +37,15 @@ const game = {
         this.over()
         this.genPokers(3)
         this.isStart = true
+        this.dinerForUserIndex = this.dinerForUserIndex + 1
     },
     //结束对局
     over(){
         this.isStart = false
         this.pokerList = []
+    },
+    initDinerIndex(){
+        this.dinerForUserIndex = -1
     }
 }
 

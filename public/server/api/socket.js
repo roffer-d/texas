@@ -7,7 +7,6 @@ function ready(userId) {
 
     let count = Object.keys(socket.connections).length
     let readyCount = 0
-    let pokerList = []
 
     for (let key in socket.connections) {
         if (socket.connections[key].ready) {
@@ -18,16 +17,21 @@ function ready(userId) {
     //所有玩家都准备就绪(至少2个人)，生成初始3张底牌
     if (count >= 2 && count === readyCount) {
         game.start()
-        pokerList = game.pokerList
+        let idx = game.dinerForUserIndex
+        let onlineCount = Object.keys(socket.connections).length
+
+        if(idx > onlineCount){
+            game.initDinerIndex()
+        }
     }
 
     socket.sendMsg({
         type: 'ready',
         userId: userId,
         gameInfo: {
-            isStart:pokerList.length ? true : false,
-            pokerList,
-            dinerForUserIndex: 0
+            isStart: game.isStart,
+            pokerList: game.pokerList,
+            dinerForUserIndex: game.dinerForUserIndex
         }
     })
 }
