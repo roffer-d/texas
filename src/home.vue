@@ -139,7 +139,9 @@
                 }
             },
             //离线重连接
-            reconnect(data){
+            async reconnect(data){
+                await this.join(data)
+
                 let user = this.onlineUsers.find(u=>{return u._id === data.userId})
                 console.log(`玩家【${user.username}】回来了`)
 

@@ -91,11 +91,13 @@ socket.onMessage = (msg) => {
 
 socket.connected = (_id) => {
     let onlineUsers = Object.keys(socket.connections)
-    socket.sendMsg({type: 'join', userId:_id,onlineUsers})
-
     let conn = socket.connections[_id]
-    if(conn.status === status.GAME.IN_PROGRESS){
-        socket.sendMsg({type: 'reconnect', userId:_id,pokerList:game.pokerList})
+
+    if(conn.status === status.GAME.LEAVE){
+        socket.sendMsg({type: 'reconnect', userId:_id,pokerList:game.pokerList,onlineUsers})
+        conn.status = status.GAME.IN_PROGRESS
+    }else{
+        socket.sendMsg({type: 'join', userId:_id,onlineUsers})
     }
 }
 

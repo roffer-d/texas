@@ -33,7 +33,8 @@ const game = {
     },
     //开始对局
     start(){
-        this.genPokers(2)
+        this.over()
+        this.genPokers(3)
         this.isStart = true
     },
     //结束对局

@@ -34,14 +34,15 @@ wss.on('connection', function (ws,req) {
     prarms = JSON.parse(JSON.stringify(prarms))
     let {_id,token} = prarms
 
-    /** 获取连接池中是否有当前连接的玩家，如果有，表示该玩家在对局中离开，此时应该恢复他的对局数据 **/
+
     let conn = socket.connections[_id]
-    if(conn && conn.status === status.GAME.LEAVE){
-        socket.connections[_id] = {token,ws,status:status.GAME.IN_PROGRESS}
-    }else{
-        /** 新进来的玩家 **/
-        socket.connections[_id] = {token,ws,status:status.GAME.NORMAL}
-    }
+    let sta = conn && conn.status === status.GAME.LEAVE
+                /** 获取连接池中是否有当前连接的玩家，如果有，表示该玩家在对局中离开，此时应该恢复他的对局数据 **/
+                ? status.GAME.LEAVE
+                /** 新进来的玩家 **/
+                : status.GAME.NORMAL
+
+    socket.connections[_id] = {token,ws,status:sta}
 
     ws.on('message', socket.onMessage);
     ws.on('close', ()=>{
